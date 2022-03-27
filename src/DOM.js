@@ -5,6 +5,14 @@
   Считаем, что всегда передается тег, допускающий вставку текста в качестве своего содержимого (P, DIV, I и пр.).
 */
 export function appendToBody(tag, content, count) {
+    const withContent = document.body;
+    for (let i = 0; i < count; ++i) {
+        withContent.insertAdjacentHTML(
+            'afterbegin',
+            '<' + tag + '>' + content + '</' + tag + '>',
+        );
+    }
+    return withContent;
 }
 
 /*
@@ -15,6 +23,33 @@ export function appendToBody(tag, content, count) {
   Сформированное дерево верните в качестве результата работы функции.
 */
 export function generateTree(childrenCount, level) {
+    function createTree(Node, ChildrenCount, Level) {
+        if (Level === 0) {
+            return;
+        }
+        for (let i = 0; i < ChildrenCount; ++i) {
+            Node.insertAdjacentHTML(
+                'beforeend',
+                '<div class="item_' + (level - Level + 1) + '"></div>',
+            );
+        }
+        if (Level === 1) {
+            return;
+        }
+        let flex = Node.getElementsByTagName('div');
+        for (let i = 0; i < ChildrenCount; ++i) {
+            createTree(flex[i * (ChildrenCount + 1)], ChildrenCount, Level - 1);
+        }
+    }
+    if (level > 0) {
+        document.body.insertAdjacentHTML(
+            'beforeend',
+            '<div class="item_1"></div>',
+        );
+        const node = document.body.getElementsByTagName('div')[0];
+        createTree(node, childrenCount, level - 1);
+    }
+    return document.body.firstChild;
 }
 
 /*
@@ -26,4 +61,15 @@ export function generateTree(childrenCount, level) {
   Сформированное дерево верните в качестве результата работы функции.
 */
 export function replaceNodes() {
+    generateTree(2, 3);
+    let arr = document.body.querySelectorAll('.item_2');
+    for (let i = 0; i < 2; ++i) {
+        let res = document.createElement('section');
+        //res = document.getElementsByTagName('section');
+        res.innerHTML = arr[i].innerHTML;
+        res.className = 'item_2';
+        arr[i].replaceWith(res);
+    }
+    //arr.replaceChildren(res, 'item_2')
+    return document.body.firstChild;
 }
